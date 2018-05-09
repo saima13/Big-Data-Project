@@ -1,0 +1,84 @@
+package firstjava;
+
+import java.util.*;
+//import java.sql.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import java.io.File;
+
+public class editsXmlToJava {
+
+  public static void main(String argv[]) {
+
+    try {
+
+	File fXmlFile = new File("C:/Users/Saima/Desktop/edit1.xml");
+	DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	Document doc = dBuilder.parse(fXmlFile);
+
+	doc.getDocumentElement().normalize();
+
+	System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+	NodeList nList = doc.getElementsByTagName("RECORD");
+
+	//System.out.println("----------------------------");
+	System.out.println("Transaction ID, " + "Access Time, " + "Modify Time, " + "Requestor, " + "Role, " + "Component Accessed, " + "Request Type, " + "Violation Type");
+	  
+	for (int temp = 0; temp < nList.getLength(); temp++) {
+
+		Node nNode = nList.item(temp);
+
+
+		if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+			Element eElement = (Element) nNode;
+		
+			String opcode = eElement.getElementsByTagName("OPCODE").item(0).getTextContent();
+			if (opcode.equals("OP_ADD") || opcode.equals("OP_CLOSE"))
+				{
+				
+				
+				String accessTime = ((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("ATIME").item(0).getTextContent();
+				String modifyTime = ((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("MTIME").item(0).getTextContent();
+				
+				long aTime = Long.parseLong(accessTime);
+				long mTime = Long.parseLong(modifyTime);
+				
+				Calendar calendar = Calendar.getInstance();
+				  calendar.setTimeInMillis(aTime);
+				 calendar.setTimeInMillis(mTime);
+				  
+				  
+				  System.out.print(((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("TXID").item(0).getTextContent() + "," +calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE)+" : " + calendar.get(Calendar.SECOND)+"," + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE)+" : " + calendar.get(Calendar.SECOND) + "," + ((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("CLIENT_NAME").item(0).getTextContent()+"," + ((Element) eElement.getElementsByTagName("PERMISSION_STATUS").item(0)).getElementsByTagName("USERNAME").item(0).getTextContent() + "," + ((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("PATH").item(0).getTextContent()+"," + opcode + ",");
+					System.out.println();
+					// ]String ca = ((Element) eElement.getElementsByTagName("DATA").item(0)).getElementsByTagName("PATH").item(0).getTextContent();
+					long eightAM = Long.parseLong("1493726400000");
+				long fivePM = Long.parseLong("1493758800000");
+				String role = ((Element) eElement.getElementsByTagName("PERMISSION_STATUS").item(0)).getElementsByTagName("USERNAME").item(0).getTextContent();
+				if (aTime >= eightAM && aTime <= fivePM && mTime >= eightAM && mTime <= fivePM && role.equals("hdfs"))
+				{
+						System.out.println("LEGAL ACCESS");
+	
+					
+				}
+				else
+					System.out.println("ILLEGAL ACCESS");
+					
+				
+				}
+		}
+	}
+    } catch (Exception e) {
+	e.printStackTrace();
+    }
+  }
+}
+
+
+
